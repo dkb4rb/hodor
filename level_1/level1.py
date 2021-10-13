@@ -1,13 +1,75 @@
 #!/usr/bin/python3
-# levelo.py.py
+# level1.py
 # Juan Duque <3428@holbertonschool.com>
-""" Import libraries necesary for execute program
-"""
+""" Import libraries """
+from bs4 import BeautifulSoup
 import requests
-url = "http://158.69.76.135/level0.php"
-data_vote = { 'id':'26', 'holdthedoor':'Submit'}
+import sys
+import os
+
+data_vote = {
+    'id': '',
+    'holdthedoor': 'holdthedoor',
+    'key': '', }
+
+
+def banner():
+    print(" ___   ___   ______   ______   ______   ______       ")
+    print("/__/\ /__/\ /_____/\ /_____/\ /_____/\ /_____/\      ")
+    print("\::\ \\\  \ \\\:::_ \ \\\:::_ \ \\\:::_ \ \\\:::_ \ \     ")
+    print(" \::\/_\ .\ \\\:\ \ \ \\\:\ \ \ \\\:\ \ \ \\\:(_) ) )_   ")
+    print("  \:: ___::\ \\\:\ \ \ \\\:\ \ \ \\\:\ \ \ \\\: __  \ \  ")
+    print("   \: \ \\\::\ \\\:\_\ \ \\\:\/.:| |\:\_\ \ \\\ \ \  \ \ ")
+    print("    \__\/ \::\/ \_____\/ \____/_/ \_____\/ \\_\/ \_\/ ")
+    print("")
+    print("[!] Project Web Scrapping Hodor")
+    print("\n\t [*] Elaborado por.. Juan Duque\n")
+
+
+def _errnos_1():
+    os.system("clear")
+    print("Conexion Interrumpida")
+    print("\t\n [!] Saliendo del Programa .... ")
+    exit(1)
+
+
+def sending(url, uid, size):
+    for i in range(size):
+        os.system("clear")
+        banner()
+        print("\n[!] Conected url : {}\n".format(URL))
+        print(
+            "[*] Votando ..\n\t\t ... Your ID      ... [{}]\n\t\t ... Actual Votes ... [ {} ] ".format(uid, i + 1))
+        session = requests.session()
+        page = session.get(url)
+        soup = BeautifulSoup(page.text, "html.parser")
+        hidden_value = soup.find("form", {"method": "post"})
+        hidden_value = hidden_value.find("input", {"type": "hidden"})
+        data_vote["key"] = hidden_value["value"]
+        data_vote['id'] = uid
+        session.post(url=url, data=data_vote)
+
+    return (i)
+
+
+def arrgv():
+    if len(sys.argv) <= 3:
+        print("\n [*] Usage: <URL> <UID> <SIZE_VOTES>")
+        sys.exit(1)
+    if int(sys.argv[2]) < 0:
+        print("size is must be > 0")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    for i in range(0, 1024):
-        requests.post(url, data=data_vote)
-        print("[*] Se a enviado Peticion {}".format(i))
+
+    try:
+        arrgv()
+        URL = str(sys.argv[1])
+        UID = int(sys.argv[2])
+        SIZE_VOTES = int(sys.argv[3])
+        ACTUAL_VOTES = sending(URL, UID, SIZE_VOTES)
+        print("\n\t[ & % ] Votacion Terminada\n \t\t Total Votos [ {} ]\n".format(
+            ACTUAL_VOTES + 1))
+    except KeyboardInterrupt:
+        _errnos_1()
