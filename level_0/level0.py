@@ -4,10 +4,15 @@
 """ Import libraries necesary for execute program
 """
 import requests
-url = "http://158.69.76.135/level0.php"
-data_vote = { 'id':'26', 'holdthedoor':'Submit'}
+url = "http://158.69.76.135/level1.php"
+data_vote = {
+    'id': '26',
+    'holdthedoor': 'Submit'}
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
+}
 
 if __name__ == "__main__":
-    for i in range(0, 1024):
-        requests.post(url, data=data_vote)
-        print("[*] Se a enviado Peticion {}".format(i))
+    requests.post(url, data=data_vote)
+    print("[*] Votando [{}]".format(i))

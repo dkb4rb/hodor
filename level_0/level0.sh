@@ -21,8 +21,8 @@ echo -ne "\n\t [*] Elaborado por.. Juan Duque\n"
 
 }
 
-for send in $(seq 1 50); do
-	ids=2
+for send in $(seq 1 1024); do
+	ids=3428
 	curl -X POST -d "id=$ids&holdthedoor=submit" http://158.69.76.135/level0.php > /dev/null 2>&1
 	clear
 	banner
