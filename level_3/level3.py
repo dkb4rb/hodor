@@ -8,16 +8,16 @@ import requests
 import sys
 import os
 import pytesseract
-import date, time
+import time
 from pwn import *
 
 
-#def def_handler(sig, frame):
+# def def_handler(sig, frame):
 #	sys.exit(0)
-	
+
 #signal.signal(signal.SIGINT, def_handler)
 
-
+url_cap = "http://158.69.76.135/captcha.php"
 
 user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:64.0) "
               "Gecko/20100101 Firefox/64.0")
@@ -31,7 +31,9 @@ header = {
 data_vote = {
     'id': '',
     'holdthedoor': 'Submit',
-    'key': '', }
+    'key': '',
+    'captcha': '',
+}
 
 
 def banner():
@@ -54,6 +56,28 @@ def _errnos_1():
     exit(1)
 
 
+def ocr_request():
+    """ This is new request when create new file
+             and write  new content"""
+    captcha_url = requests.get(url_cap)
+    f = open("captcha.png", "wb")
+    f.write(captcha_url.content)
+    f.close()
+
+    """ This is the declaration of the new loading bar"""
+    p1 = log.progress("Captcha")
+    p1.status("Obteniendo Valor Captcha")
+    time.sleep(1)
+
+    """ In This moment convert with pytesseract
+		image to string"""
+
+    captcha_value = pytesseract.image_to_string("captcha.png")
+    os.remove("captcha.png")
+    data_vote['captcha'] = captcha_value
+    p1.success("Valor Captcha agregado a la data")
+
+
 def sending(url, uid, size):
     for i in range(size):
         os.system("clear")
@@ -69,6 +93,7 @@ def sending(url, uid, size):
         data_vote["key"] = hidden_value["value"]
         data_vote['id'] = uid
         header['referer'] = url
+        ocr_request()
         session.post(url=url, headers=header, data=data_vote)
 
     return (i)
@@ -85,13 +110,17 @@ def arrgv():
 
 if __name__ == "__main__":
 
-    try:
-        arrgv()
-        URL = str(sys.argv[1])
-        UID = int(sys.argv[2])
-        SIZE_VOTES = int(sys.argv[3])
-        ACTUAL_VOTES = sending(URL, UID, SIZE_VOTES)
-        print("\n\t[ & % ] Votacion Terminada\n \t\t Total Votos [ {} ]\n".format(
-            ACTUAL_VOTES + 1))
-    except KeyboardInterrupt:
-        _errnos_1()
+    ocr_request()
+    for i in data_vote:
+        print("--> {:s} : {:s}".format(i, data_vote[i]))
+
+#    try:
+#        arrgv()
+#        URL = str(sys.argv[1])
+#        UID = int(sys.argv[2])
+#        SIZE_VOTES = int(sys.argv[3])
+#        ACTUAL_VOTES = sending(URL, UID, SIZE_VOTES)
+#        print("\n\t[ & % ] Votacion Terminada\n \t\t Total Votos [ {} ]\n".format(
+#            ACTUAL_VOTES + 1))
+#    except KeyboardInterrupt:
+#        _errnos_1()
