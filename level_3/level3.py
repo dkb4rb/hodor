@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+#coding: utf-8
 # level1.py
 # Juan Duque <3428@holbertonschool.com>
 """ Import libraries """
@@ -6,6 +7,17 @@ from bs4 import BeautifulSoup
 import requests
 import sys
 import os
+import pytesseract
+import date, time
+from pwn import *
+
+
+#def def_handler(sig, frame):
+#	sys.exit(0)
+	
+#signal.signal(signal.SIGINT, def_handler)
+
+
 
 user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:64.0) "
               "Gecko/20100101 Firefox/64.0")
@@ -15,7 +27,6 @@ header = {
     "referer": ""
 
 }
-
 
 data_vote = {
     'id': '',
