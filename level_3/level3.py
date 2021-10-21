@@ -4,6 +4,7 @@
 # Juan Duque <3428@holbertonschool.com>
 """ Import libraries """
 from bs4 import BeautifulSoup
+from numpy.core.arrayprint import printoptions
 import requests
 import sys
 import os
@@ -17,7 +18,7 @@ from pwn import *
 
 #signal.signal(signal.SIGINT, def_handler)
 
-url_cap = "http://158.69.76.135/captcha.php"
+url_cap = "http://158.69.76.135"
 
 user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:64.0) "
               "Gecko/20100101 Firefox/64.0")
@@ -29,10 +30,10 @@ header = {
 }
 
 data_vote = {
-    'id': '',
-    'holdthedoor': 'Submit',
-    'key': '',
-    'captcha': '',
+    "id": "",
+    "holdthedoor": "Enviar",
+    "key": "",
+    "captcha": ""
 }
 
 
@@ -57,6 +58,8 @@ def _errnos_1():
 
 
 def ocr_request():
+    i = 0
+
     """ This is new request when create new file
              and write  new content"""
     captcha_url = requests.get(url_cap)
@@ -71,7 +74,6 @@ def ocr_request():
 
     """ In This moment convert with pytesseract
 		image to string"""
-
     captcha_value = pytesseract.image_to_string("captcha.png")
     os.remove("captcha.png")
     data_vote['captcha'] = captcha_value
@@ -93,9 +95,19 @@ def sending(url, uid, size):
         data_vote["key"] = hidden_value["value"]
         data_vote['id'] = uid
         header['referer'] = url
-        ocr_request()
-        session.post(url=url, headers=header, data=data_vote)
 
+        captcha_path = soup.find("form", {"method": "post"}).find("img")
+        captcha_path = url_cap + captcha_path["src"]
+        captcha_img = open("captcha.png", "wb")
+        captcha_img.write(session.get(captcha_path).content)
+        captcha_img.close()
+        captcha_php = pytesseract.image_to_string("captcha.png")
+        os.remove("captcha.png")
+        data_vote["captcha"] = captcha_php
+
+        r = session.post(url=url, headers=header, data=data_vote)
+        if str(r.content) != "b'See you later hacker! [11]'":
+            continue
     return (i)
 
 
@@ -110,17 +122,13 @@ def arrgv():
 
 if __name__ == "__main__":
 
-    ocr_request()
-    for i in data_vote:
-        print("--> {:s} : {:s}".format(i, data_vote[i]))
-
-#    try:
-#        arrgv()
-#        URL = str(sys.argv[1])
-#        UID = int(sys.argv[2])
-#        SIZE_VOTES = int(sys.argv[3])
-#        ACTUAL_VOTES = sending(URL, UID, SIZE_VOTES)
-#        print("\n\t[ & % ] Votacion Terminada\n \t\t Total Votos [ {} ]\n".format(
-#            ACTUAL_VOTES + 1))
-#    except KeyboardInterrupt:
-#        _errnos_1()
+    try:
+        arrgv()
+        URL = str(sys.argv[1])
+        UID = int(sys.argv[2])
+        SIZE_VOTES = int(sys.argv[3])
+        ACTUAL_VOTES = sending(URL, UID, SIZE_VOTES)
+        print("\n\t[ & % ] Votacion Terminada\n \t\t Total Votos [ {} ]\n".format(
+            ACTUAL_VOTES + 1))
+    except KeyboardInterrupt:
+        _errnos_1()
